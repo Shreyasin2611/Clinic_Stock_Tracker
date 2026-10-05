@@ -2,7 +2,7 @@
 
 A web app that automatically tracks consumable stock at Om Sai HealthCare Centre which conducts a wide range oh health checkup routines. When a test is logged, the stock used by that test is deducted automatically, and staff are alerted when an item runs low.
 
-This is the frontend prototype for a Master's thesis on automation in stock management in a healthcare organisation.
+
 
 ## Tech stack
 
