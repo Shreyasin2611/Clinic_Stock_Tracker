@@ -6,6 +6,9 @@ import { addItem, deleteItem, updateItem } from "../services/itemService";
 import StockItemsTable from "../components/inventory/StockItemsTable";
 import ItemFormDialog from "../components/inventory/ItemFormDialog";
 import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
+import { useTests } from "../hooks/useTests";
+import { deleteTest } from "../services/testService";
+import TestsTable from "../components/inventory/TestsTable";
 
 const TABS = ["tests", "stock-items"];
 
@@ -13,8 +16,10 @@ export default function InventoryPage() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { items, loading, error } = useItems();
+  const { tests, loading: testsLoading, error: testsError } = useTests();
   const [formState, setFormState] = useState({ open: false, item: null });
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteTestTarget, setDeleteTestTarget] = useState(null);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   
   if (!TABS.includes(tab)) {
@@ -51,6 +56,18 @@ export default function InventoryPage() {
     }
   }
 
+  
+  async function handleDeleteTest() {
+    try {
+      await deleteTest(deleteTestTarget.id);
+      showToast("Test deleted.");
+    } catch (e) {
+      showToast("Could not delete: " + e.message, "error");
+    } finally {
+      setDeleteTestTarget(null);
+    }
+  }
+
   return (
     <>
       <Typography variant="h1" sx={{ mb: 2 }}>
@@ -66,8 +83,22 @@ export default function InventoryPage() {
         <Tab value="stock-items" label="Stock items" />
       </Tabs>
 
-      {tab === "tests" && (
-        <Typography color="text.secondary"></Typography>
+            {tab === "tests" && (
+        <>
+          {(loading || testsLoading) && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {(error || testsError) && <Alert severity="error">{error || testsError}</Alert>}
+          {!loading && !testsLoading && !error && !testsError && (
+            <TestsTable
+              tests={tests}
+              items={items}
+              onDelete={(test) => setDeleteTestTarget(test)}
+            />
+          )}
+        </>
       )}
 
       {tab === "stock-items" && (
@@ -104,6 +135,13 @@ export default function InventoryPage() {
         name={deleteTarget?.name}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+        <ConfirmDeleteDialog
+        open={Boolean(deleteTestTarget)}
+        name={deleteTestTarget?.name}
+        onConfirm={handleDeleteTest}
+        onCancel={() => setDeleteTestTarget(null)}
       />
 
       <Snackbar
