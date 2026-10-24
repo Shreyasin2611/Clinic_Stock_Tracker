@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Alert, Box, CircularProgress, Snackbar, Tab, Tabs, Typography } from "@mui/material";
 import { useItems } from "../hooks/useItems";
-import { addItem, updateItem } from "../services/itemService";
+import { addItem, deleteItem, updateItem } from "../services/itemService";
 import StockItemsTable from "../components/inventory/StockItemsTable";
 import ItemFormDialog from "../components/inventory/ItemFormDialog";
+import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
 
 const TABS = ["tests", "stock-items"];
 
@@ -13,6 +14,7 @@ export default function InventoryPage() {
   const navigate = useNavigate();
   const { items, loading, error } = useItems();
   const [formState, setFormState] = useState({ open: false, item: null });
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   
   if (!TABS.includes(tab)) {
@@ -35,6 +37,17 @@ export default function InventoryPage() {
       setFormState({ open: false, item: null });
     } catch (e) {
       showToast("Could not save: " + e.message, "error");
+    }
+  }
+  
+  async function handleDelete() {
+    try {
+      await deleteItem(deleteTarget.id);
+      showToast("Stock item deleted.");
+    } catch (e) {
+      showToast(e.message, "error");
+    } finally {
+      setDeleteTarget(null);
     }
   }
 
@@ -70,6 +83,7 @@ export default function InventoryPage() {
               items={items}
               onAdd={() => setFormState({ open: true, item: null })}
               onEdit={(item) => setFormState({ open: true, item })}
+              onDelete={(item) => setDeleteTarget(item)}
             />
       )}
     </>
@@ -84,6 +98,13 @@ export default function InventoryPage() {
           onClose={() => setFormState({ open: false, item: null })}
         />
       )}
+      
+        <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        name={deleteTarget?.name}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
 
       <Snackbar
         open={toast.open}

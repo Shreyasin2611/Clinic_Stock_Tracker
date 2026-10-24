@@ -14,10 +14,11 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/Delete";
 import StatusBadge from "../common/StatusBadge";
 import { getStatus } from "../../utils/stockStatus";
 
-export default function StockItemsTable({ items, onAdd, onEdit }) {
+export default function StockItemsTable({ items, onAdd, onEdit, onDelete }) {
   return (
     <Paper sx={{ p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -61,6 +62,11 @@ export default function StockItemsTable({ items, onAdd, onEdit }) {
                     <Tooltip title="Edit">
                       <IconButton aria-label={`Edit ${item.name}`} onClick={() => onEdit(item)}>
                         <EditOutlinedIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton aria-label={`Delete ${item.name}`} onClick={() => onDelete(item)}>
+                        <DeleteOutlineIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>
