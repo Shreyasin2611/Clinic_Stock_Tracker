@@ -1,6 +1,6 @@
 # Clinic Stock Tracker
 
-A web app that automatically tracks consumable stock at Om Sai HealthCare Centre which conducts a wide range oh health checkup routines. When a test is logged, the stock used by that test is deducted automatically, and staff are alerted when an item runs low.
+A web app that automatically tracks consumable stock at case company for Healthcare Centre, which conducts a wide range of health checkup routines. When a test is logged, the stock used by that test is deducted automatically, and staff are alerted when an item runs low.
 
 
 
@@ -24,7 +24,7 @@ A web app that automatically tracks consumable stock at Om Sai HealthCare Centre
 | Could have | Usage trend report of tests (not in scope for now) |
 | Won't have | Full integration with the company's Lab ERP, automated reorder to supplier and payments |
 
-The prototype is for a single user (no login).
+The prototype is intended for one staff user. Login is required to protect the web application and its clinic inventory data; multi-user accounts and role management are outside the current scope.
 
 ## Folder structure
 
@@ -54,7 +54,7 @@ Clinic_Stock_Tracker/
 
 | URL | Page | Description |
 |---|---|---|
-| `/login` | LoginPage |Authorizes member have the access|
+| `/login` | LoginPage | Sign-in page for the authorized staff user |
 | `/` | DashboardPage | Stock levels, log a test, alerts, reorder list |
 | `/inventory` | redirect | Redirects to `/inventory/tests` |
 | `/inventory/tests` | InventoryPage | Manage tests and the items each test uses |
