@@ -68,16 +68,8 @@ Each feature is developed in its own branch and merged into `main` at the end.
 
 | Branch | Content |
 |---|---|
-| `feature/setup-routing` | Project setup, folder structure, routing |
-| `feature/theme` | MUI theme |
-| `feature/layout-navbar` | Navbar and page layout |
-| `feature/firebase-services` | Firebase setup and data services |
-| `feature/inventory-tests` | Tests table and add/edit/delete dialogs |
-| `feature/inventory-stock-items` | Stock items table and add/edit/delete dialogs |
-| `feature/dashboard-stock-levels` | Stock levels card |
-| `feature/dashboard-log-test` | Log a test card and stock deduction |
-| `feature/dashboard-alerts` | Alerts card |
-| `feature/dashboard-reorder-list` | Reorder list |
+| `main` |  At the end, tested code merged from  local branch to main branch |
+| `dev` | For daily development work |
 
 ## Getting started
 
