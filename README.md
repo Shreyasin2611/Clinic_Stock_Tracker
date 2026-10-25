@@ -54,6 +54,7 @@ Clinic_Stock_Tracker/
 
 | URL | Page | Description |
 |---|---|---|
+| `/login` | LoginPage |Authorizes member have the access|
 | `/` | DashboardPage | Stock levels, log a test, alerts, reorder list |
 | `/inventory` | redirect | Redirects to `/inventory/tests` |
 | `/inventory/tests` | InventoryPage | Manage tests and the items each test uses |
