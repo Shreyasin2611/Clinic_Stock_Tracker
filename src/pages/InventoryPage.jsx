@@ -7,8 +7,9 @@ import StockItemsTable from "../components/inventory/StockItemsTable";
 import ItemFormDialog from "../components/inventory/ItemFormDialog";
 import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
 import { useTests } from "../hooks/useTests";
-import { deleteTest } from "../services/testService";
+import { addTest, deleteTest, updateTest } from "../services/testService";
 import TestsTable from "../components/inventory/TestsTable";
+import TestFormDialog from "../components/inventory/TestFormDialog";
 
 const TABS = ["tests", "stock-items"];
 
@@ -20,6 +21,7 @@ export default function InventoryPage() {
   const [formState, setFormState] = useState({ open: false, item: null });
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteTestTarget, setDeleteTestTarget] = useState(null);
+  const [testFormState, setTestFormState] = useState({ open: false, test: null });
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   
   if (!TABS.includes(tab)) {
@@ -53,6 +55,22 @@ export default function InventoryPage() {
       showToast(e.message, "error");
     } finally {
       setDeleteTarget(null);
+    }
+  }
+
+  
+  async function handleSaveTest(data) {
+    try {
+      if (testFormState.test) {
+        await updateTest(testFormState.test.id, data);
+        showToast("Test updated.");
+      } else {
+        await addTest(data);
+        showToast("Test added.");
+      }
+      setTestFormState({ open: false, test: null });
+    } catch (e) {
+      showToast("Could not save: " + e.message, "error");
     }
   }
 
@@ -95,6 +113,8 @@ export default function InventoryPage() {
             <TestsTable
               tests={tests}
               items={items}
+              onAdd={() => setTestFormState({ open: true, test: null })}
+              onEdit={(test) => setTestFormState({ open: true, test })}
               onDelete={(test) => setDeleteTestTarget(test)}
             />
           )}
@@ -119,6 +139,17 @@ export default function InventoryPage() {
       )}
     </>
 )}
+
+  {testFormState.open && (
+        <TestFormDialog
+          key={testFormState.test?.id ?? "new"}
+          test={testFormState.test}
+          tests={tests}
+          items={items}
+          onSave={handleSaveTest}
+          onClose={() => setTestFormState({ open: false, test: null })}
+        />
+  )}
 
 {formState.open && (
         <ItemFormDialog

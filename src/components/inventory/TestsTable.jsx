@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   IconButton,
   Paper,
   Table,
@@ -11,6 +12,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/Delete";
 
 function describeItems(requiredItems, items) {
@@ -23,19 +26,24 @@ function describeItems(requiredItems, items) {
     .join(", ");
 }
 
-export default function TestsTable({ tests, items, onDelete }) {
+export default function TestsTable({ tests, items, onAdd, onEdit, onDelete }) {
   return (
     <Paper sx={{ p: 3 }}>
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Box>
         <Typography variant="h2">Tests</Typography>
         <Typography variant="body2" color="text.secondary">
           Manage the tests and the items each one uses.
         </Typography>
       </Box>
+      <Button variant="contained" startIcon={<AddIcon />} onClick={onAdd}>
+          Add test 
+        </Button>
+        </Box>
 
       {tests.length === 0 ? (
         <Typography color="text.secondary" sx={{ py: 3 }}>
-          No tests yet.
+          No tests yet. Click "Add test" to create the first one.
         </Typography>
       ) : (
         <TableContainer>
@@ -53,6 +61,11 @@ export default function TestsTable({ tests, items, onDelete }) {
                   <TableCell>{test.name}</TableCell>
                   <TableCell>{describeItems(test.requiredItems, items)}</TableCell>
                   <TableCell align="right">
+                    <Tooltip title="Edit">
+                      <IconButton aria-label={`Edit ${test.name}`} onClick={() => onEdit(test)}>
+                        <EditOutlinedIcon />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip title="Delete">
                       <IconButton aria-label={`Delete ${test.name}`} onClick={() => onDelete(test)}>
                         <DeleteOutlineIcon />
