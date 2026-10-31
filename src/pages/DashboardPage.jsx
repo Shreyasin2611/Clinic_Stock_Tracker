@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Alert, Box, CircularProgress, Snackbar, Typography } from "@mui/material";
 import { useItems } from "../hooks/useItems";
 import { useTests } from "../hooks/useTests";
 import { logTest } from "../services/usageService";
 import LogTestCard from "../components/dashboard/LogTestCard";
 import StockLevelsCard from "../components/dashboard/StockLevelsCard";
+import AlertsCard from "../components/dashboard/AlertsCard";
 
 export default function DashboardPage() {
+  const location = useLocation();
   const { items, loading: itemsLoading, error: itemsError } = useItems();
   const { tests, loading: testsLoading, error: testsError } = useTests();
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
@@ -27,6 +30,15 @@ export default function DashboardPage() {
 
   const loading = itemsLoading || testsLoading;
   const error = itemsError || testsError;
+
+  useEffect(() => {
+    if (location.hash === "#alerts" && !loading && !error) {
+      document.getElementById("dashboard-alerts")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [location.hash, loading, error]);
 
   return (
     <>
@@ -52,6 +64,7 @@ export default function DashboardPage() {
         >
           <StockLevelsCard items={items} />
           <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
+          <AlertsCard items={items} />
         </Box>
       )}
 
