@@ -10,14 +10,17 @@ import { useTests } from "../hooks/useTests";
 import { addTest, deleteTest, updateTest } from "../services/testService";
 import TestsTable from "../components/inventory/TestsTable";
 import TestFormDialog from "../components/inventory/TestFormDialog";
+import { useMovements } from "../hooks/useMovements";
+import MovementsTable from "../components/inventory/MovementsTable";
 
-const TABS = ["tests", "stock-items"];
+const TABS = ["tests", "stock-items", "history"];
 
 export default function InventoryPage() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { items, loading, error } = useItems();
   const { tests, loading: testsLoading, error: testsError } = useTests();
+  const { movements, loading: movementsLoading, error: movementsError } = useMovements();
   const [formState, setFormState] = useState({ open: false, item: null });
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteTestTarget, setDeleteTestTarget] = useState(null);
@@ -99,6 +102,7 @@ export default function InventoryPage() {
       >
         <Tab value="tests" label="Tests" />
         <Tab value="stock-items" label="Stock items" />
+        <Tab value="history" label="History" />
       </Tabs>
 
             {tab === "tests" && (
@@ -140,6 +144,20 @@ export default function InventoryPage() {
     </>
 )}
 
+        {tab === "history" && (
+        <>
+          {movementsLoading && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {movementsError && <Alert severity="error">{movementsError}</Alert>}
+          {!movementsLoading && !movementsError && (
+            <MovementsTable movements={movements} />
+          )}
+        </>
+      )}
+  
   {testFormState.open && (
         <TestFormDialog
           key={testFormState.test?.id ?? "new"}

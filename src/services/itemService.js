@@ -1,5 +1,4 @@
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -7,10 +6,16 @@ import {
   onSnapshot,
   orderBy,
   query,
-  updateDoc,
+  runTransaction,
+  serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
+
+function movementData(itemId, itemName, change, quantityAfter, reason) {
+  return { itemId, itemName, change, quantityAfter, reason, createdAt: serverTimestamp() };
+}
 
 export function subscribeToItems(onData, onError) {
   const q = query(collection(db, "items"), orderBy("name"));
@@ -22,11 +27,34 @@ export function subscribeToItems(onData, onError) {
 }
 
 export function addItem({ name, quantity, threshold }) {
-  return addDoc(collection(db, "items"), { name, quantity, threshold });
+ const batch = writeBatch(db);
+  const itemRef = doc(collection(db, "items"));
+  batch.set(itemRef, { name, quantity, threshold });
+  if (quantity > 0) {
+    batch.set(
+      doc(collection(db, "stockMovements")),
+      movementData(itemRef.id, name, quantity, quantity, "initial")
+    );
+  }
+  return batch.commit();
 }
 
 export function updateItem(id, { name, quantity, threshold }) {
-  return updateDoc(doc(db, "items", id), { name, quantity, threshold });
+ return runTransaction(db, async (transaction) => {
+    const ref = doc(db, "items", id);
+    const snap = await transaction.get(ref);
+    if (!snap.exists()) {
+      throw new Error("This item no longer exists.");
+    }
+    const oldQuantity = snap.data().quantity;
+    transaction.update(ref, { name, quantity, threshold });
+    if (quantity !== oldQuantity) {
+      transaction.set(
+        doc(collection(db, "stockMovements")),
+        movementData(id, name, quantity - oldQuantity, quantity, "adjustment")
+      );
+    }
+  });
 }
 
 
