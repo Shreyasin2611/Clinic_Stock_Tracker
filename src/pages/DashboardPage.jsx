@@ -4,6 +4,7 @@ import { useItems } from "../hooks/useItems";
 import { useTests } from "../hooks/useTests";
 import { logTest } from "../services/usageService";
 import LogTestCard from "../components/dashboard/LogTestCard";
+import StockLevelsCard from "../components/dashboard/StockLevelsCard";
 
 export default function DashboardPage() {
   const { items, loading: itemsLoading, error: itemsError } = useItems();
@@ -41,7 +42,15 @@ export default function DashboardPage() {
       {error && <Alert severity="error">{error}</Alert>}
 
       {!loading && !error && (
-        <Box sx={{ maxWidth: 628 }}>
+                <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 3,
+            alignItems: "start",
+          }}
+        >
+          <StockLevelsCard items={items} />
           <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
         </Box>
       )}
