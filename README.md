@@ -33,20 +33,23 @@ Clinic_Stock_Tracker/
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── layout/        Navbar, PageLayout
-│   │   ├── dashboard/     Stock levels, log test, alerts, reorder list
-│   │   ├── inventory/     Tests and stock items tables and dialogs
-│   │   └── common/        Shared UI (status badge, toast, confirm dialog)
-│   ├── pages/             DashboardPage, InventoryPage, NotFoundPage
+│   │   ├── common/        ProtectedRoute, StatusBadge, ConfirmDeleteDialog
+│   │   ├── dashboard/     Dashboard components (planned)
+│   │   ├── inventory/    Item and test tables and form dialogs
+│   │   └── layout/       Navbar, PageLayout
+│   ├── context/           Authentication context and provider
+│   ├── hooks/             Authentication, item, and test hooks
+│   ├── pages/             DashboardPage, InventoryPage, LoginPage, NotFoundPage
 │   ├── routes/            AppRoutes
-│   ├── services/          Firebase data access
-│   ├── hooks/             Custom hooks for data
-│   ├── utils/             Helpers (stock status logic)
-│   ├── theme/             MUI theme (colours, typography)
+│   ├── services/          Firebase setup, item/test data access, seed data
+│   ├── theme/             MUI theme
+│   ├── utils/             Stock status helper
 │   ├── App.jsx
+│   ├── index.css
 │   └── main.jsx
 ├── eslint.config.js
 ├── package.json
+├── package-lock.json
 └── vite.config.js
 ```
 
