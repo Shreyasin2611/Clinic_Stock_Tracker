@@ -62,8 +62,7 @@ Clinic_Stock_Tracker/
 | `/inventory` | redirect | Redirects to `/inventory/tests` |
 | `/inventory/tests` | InventoryPage | Manage tests and the items each test uses |
 | `/inventory/stock-items` | InventoryPage | Manage stock items, quantities and thresholds |
-| `/inventory/history` |
-Stock history (recent stock changes)
+| `/inventory/history` | Stock history (recent stock changes)
 | `*` | NotFoundPage | 404 page |
 
 Add, edit and delete forms open as dialogs on top of the page, so they have no separate URL.
