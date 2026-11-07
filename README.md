@@ -63,6 +63,7 @@ Clinic_Stock_Tracker/
 | `/inventory/tests` | InventoryPage | Manage tests and the items each test uses |
 | `/inventory/stock-items` | InventoryPage | Manage stock items, quantities and thresholds |
 | `/inventory/history` | Stock history (recent stock changes)
+| `/summary` | SummaryPage | Stock summary: counts by status and days of stock left |
 | `*` | NotFoundPage | 404 page |
 
 Add, edit and delete forms open as dialogs on top of the page, so they have no separate URL.
