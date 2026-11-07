@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Alert, Box, CircularProgress, Snackbar, Tab, Tabs, Typography } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 import { useItems } from "../hooks/useItems";
+import { useTests } from "../hooks/useTests";
+import { useMovements } from "../hooks/useMovements";
+import { useToast } from "../hooks/useToast";
 import { addItem, deleteItem, updateItem } from "../services/itemService";
+import { addTest, deleteTest, updateTest } from "../services/testService";
+import DataState from "../components/common/DataState";
+import PageHeader from "../components/common/PageHeader";
+import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
 import StockItemsTable from "../components/inventory/StockItemsTable";
 import ItemFormDialog from "../components/inventory/ItemFormDialog";
-import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
-import { useTests } from "../hooks/useTests";
-import { addTest, deleteTest, updateTest } from "../services/testService";
 import TestsTable from "../components/inventory/TestsTable";
 import TestFormDialog from "../components/inventory/TestFormDialog";
-import { useMovements } from "../hooks/useMovements";
 import MovementsTable from "../components/inventory/MovementsTable";
 
 const TABS = ["tests", "stock-items", "history"];
@@ -18,60 +21,61 @@ const TABS = ["tests", "stock-items", "history"];
 export default function InventoryPage() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { items, loading, error } = useItems();
+  const { showToast } = useToast();
+  const { items, loading: itemsLoading, error: itemsError } = useItems();
   const { tests, loading: testsLoading, error: testsError } = useTests();
-  const { movements, loading: movementsLoading, error: movementsError } = useMovements();
-  const [formState, setFormState] = useState({ open: false, item: null });
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const {
+    movements,
+    loading: movementsLoading,
+    error: movementsError,
+  } = useMovements();
+
+  const [itemForm, setItemForm] = useState({ open: false, item: null });
+  const [testForm, setTestForm] = useState({ open: false, test: null });
+  const [deleteItemTarget, setDeleteItemTarget] = useState(null);
   const [deleteTestTarget, setDeleteTestTarget] = useState(null);
-  const [testFormState, setTestFormState] = useState({ open: false, test: null });
-  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   
   if (!TABS.includes(tab)) {
     return <Navigate to="/inventory/tests" replace />;
   }
 
-  function showToast(message, severity = "success") {
-    setToast({ open: true, message, severity });
-  }
-
-   async function handleSave(data) {
+   async function handleSaveItem(data) {
     try {
-      if (formState.item) {
-        await updateItem(formState.item.id, data);
+      if (itemForm.item) {
+        await updateItem(itemForm.item.id, data);
         showToast("Stock item updated.");
       } else {
         await addItem(data);
         showToast("Stock item added.");
       }
-      setFormState({ open: false, item: null });
+      setItemForm({ open: false, item: null });
     } catch (e) {
       showToast("Could not save: " + e.message, "error");
     }
   }
   
-  async function handleDelete() {
+  async function handleDeleteItem() {
     try {
-      await deleteItem(deleteTarget.id);
+      await deleteItem(deleteItemTarget.id);
       showToast("Stock item deleted.");
     } catch (e) {
       showToast(e.message, "error");
     } finally {
-      setDeleteTarget(null);
+      setDeleteItemTarget(null);
     }
   }
 
   
   async function handleSaveTest(data) {
     try {
-      if (testFormState.test) {
-        await updateTest(testFormState.test.id, data);
+      if (testForm.test) {
+        await updateTest(testForm.test.id, data);
         showToast("Test updated.");
       } else {
         await addTest(data);
         showToast("Test added.");
       }
-      setTestFormState({ open: false, test: null });
+      setTestForm({ open: false, test: null });
     } catch (e) {
       showToast("Could not save: " + e.message, "error");
     }
@@ -91,9 +95,7 @@ export default function InventoryPage() {
 
   return (
     <>
-      <Typography variant="h1" sx={{ mb: 2 }}>
-        Manage inventory
-      </Typography>
+      <PageHeader title="Manage inventory" />
 
       <Tabs
         value={tab}
@@ -106,84 +108,64 @@ export default function InventoryPage() {
       </Tabs>
 
             {tab === "tests" && (
-        <>
-          {(loading || testsLoading) && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {(error || testsError) && <Alert severity="error">{error || testsError}</Alert>}
-          {!loading && !testsLoading && !error && !testsError && (
+        
+           <DataState
+          loading={itemsLoading || testsLoading}
+          error={itemsError || testsError}
+        >
             <TestsTable
               tests={tests}
               items={items}
-              onAdd={() => setTestFormState({ open: true, test: null })}
-              onEdit={(test) => setTestFormState({ open: true, test })}
+              onAdd={() => setTestForm({ open: true, test: null })}
+              onEdit={(test) => setTestForm({ open: true, test })}
               onDelete={(test) => setDeleteTestTarget(test)}
             />
+            </DataState>
           )}
-        </>
-      )}
-
+    
       {tab === "stock-items" && (
-        <>
-          {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {error && <Alert severity="error">{error}</Alert>}
-          {!loading && !error && (
-            <StockItemsTable
+        <DataState loading={itemsLoading} error={itemsError}>
+          <StockItemsTable  
               items={items}
-              onAdd={() => setFormState({ open: true, item: null })}
-              onEdit={(item) => setFormState({ open: true, item })}
-              onDelete={(item) => setDeleteTarget(item)}
+              onAdd={() => setItemForm({ open: true, item: null })}
+              onEdit={(item) => setItemForm({ open: true, item })}
+              onDelete={(item) => setDeleteItemTarget(item)}
             />
+              </DataState>
       )}
-    </>
-)}
 
         {tab === "history" && (
-        <>
-          {movementsLoading && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {movementsError && <Alert severity="error">{movementsError}</Alert>}
-          {!movementsLoading && !movementsError && (
-            <MovementsTable movements={movements} />
-          )}
-        </>
-      )}
+      <DataState loading={movementsLoading} error={movementsError}>
+          <MovementsTable movements={movements} />
+        </DataState>
+        )}
   
-  {testFormState.open && (
+  {testForm.open && (
         <TestFormDialog
-          key={testFormState.test?.id ?? "new"}
-          test={testFormState.test}
+          key={testForm.test?.id ?? "new"}
+          test={testForm.test}
           tests={tests}
           items={items}
           onSave={handleSaveTest}
-          onClose={() => setTestFormState({ open: false, test: null })}
+          onClose={() => setTestForm({ open: false, test: null })}
         />
   )}
 
-{formState.open && (
+{itemForm.open && (
         <ItemFormDialog
-          key={formState.item?.id ?? "new"}
-          item={formState.item}
+          key={itemForm.item?.id ?? "new"}
+          item={itemForm.item}
           items={items}
-          onSave={handleSave}
-          onClose={() => setFormState({ open: false, item: null })}
+          onSave={handleSaveItem}
+          onClose={() => setItemForm({ open: false, item: null })}
         />
       )}
       
         <ConfirmDeleteDialog
-        open={Boolean(deleteTarget)}
-        name={deleteTarget?.name}
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteTarget(null)}
+        open={Boolean(deleteItemTarget)}
+        name={deleteItemTarget?.name}
+        onConfirm={handleDeleteItem}
+        onCancel={() => setDeleteItemTarget(null)}
       />
 
         <ConfirmDeleteDialog
@@ -192,21 +174,6 @@ export default function InventoryPage() {
         onConfirm={handleDeleteTest}
         onCancel={() => setDeleteTestTarget(null)}
       />
-
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={4000}
-        onClose={() => setToast((t) => ({ ...t, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          severity={toast.severity}
-          variant="filled"
-          onClose={() => setToast((t) => ({ ...t, open: false }))}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

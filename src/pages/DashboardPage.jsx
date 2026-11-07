@@ -1,35 +1,32 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Alert, Box, CircularProgress, Snackbar, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useItems } from "../hooks/useItems";
 import { useTests } from "../hooks/useTests";
-import { logTest } from "../services/usageService";
-import LogTestCard from "../components/dashboard/LogTestCard";
-import StockLevelsCard from "../components/dashboard/StockLevelsCard";
-import AlertsCard from "../components/dashboard/AlertsCard";
-import ReorderListCard from "../components/dashboard/ReorderListCard";
 import { useRecentUsage } from "../hooks/useRecentUsage";
+import { useToast } from "../hooks/useToast";
+import { logTest } from "../services/usageService";
 import { receiveStock } from "../services/itemService";
 import { getReorderSuggestions } from "../utils/reorder";
+import DataState from "../components/common/DataState";
+import PageHeader from "../components/common/PageHeader";
+import StockLevelsCard from "../components/dashboard/StockLevelsCard";
+import LogTestCard from "../components/dashboard/LogTestCard";
+import AlertsCard from "../components/dashboard/AlertsCard";
+import ReorderListCard from "../components/dashboard/ReorderListCard";
 
 export default function DashboardPage() {
-  const location = useLocation();
+  
   const { items, loading: itemsLoading, error: itemsError } = useItems();
   const { tests, loading: testsLoading, error: testsError } = useTests();
   const { usage, loading: usageLoading, error: usageError } = useRecentUsage();
-  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
+  const { showToast } = useToast();
 
   async function handleConfirm(test) {
     try {
       const used = await logTest(test);
       const text = used.map((u) => `${u.quantity} ${u.name.toLowerCase()}`).join(", ");
-      setToast({
-        open: true,
-        severity: "success",
-        message: `Test logged: ${text} used. Stock updated.`,
-      });
+      showToast(`Test logged: ${text} used. Stock updated.`);
     } catch (e) {
-      setToast({ open: true, severity: "error", message: e.message });
+      showToast(e.message, "error");
     }
   }
 
@@ -37,44 +34,24 @@ export default function DashboardPage() {
   async function handleReceive(suggestion) {
     try {
       await receiveStock(suggestion.item.id, suggestion.order);
-      setToast({
-        open: true,
-        severity: "success",
-        message: `${suggestion.item.name} received: +${suggestion.order} pcs. Stock updated.`,
-      });
+      showToast(
+        `${suggestion.item.name} received: +${suggestion.order} pcs. Stock updated.`
+      );
     } catch (e) {
-      setToast({ open: true, severity: "error", message: e.message });
+      showToast(e.message, "error");
     }
   }
 
-    const loading = itemsLoading || testsLoading || usageLoading;
-  const error = itemsError || testsError || usageError;
   const suggestions = getReorderSuggestions(items, usage);
-
-  useEffect(() => {
-    if (location.hash === "#alerts" && !loading && !error) {
-      document.getElementById("dashboard-alerts")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [location.hash, loading, error]);
-
+  
   return (
     <>
-      <Typography variant="h1" sx={{ mb: 3 }}>
-        Stock dashboard
-      </Typography>
-
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && (
-                <Box
+      <PageHeader title="Stock dashboard" />
+      <DataState
+        loading={itemsLoading || testsLoading || usageLoading}
+        error={itemsError || testsError || usageError}
+      >
+        <Box
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
@@ -85,24 +62,9 @@ export default function DashboardPage() {
           <StockLevelsCard items={items} />
           <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
           <AlertsCard items={items} />
-                    <ReorderListCard suggestions={suggestions} onReceive={handleReceive} />
+          <ReorderListCard suggestions={suggestions} onReceive={handleReceive} />
         </Box>
-      )}
-
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={5000}
-        onClose={() => setToast((t) => ({ ...t, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          severity={toast.severity}
-          variant="filled"
-          onClose={() => setToast((t) => ({ ...t, open: false }))}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
-    </>
+      </DataState>
+    </> 
   );
 }
