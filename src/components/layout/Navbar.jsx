@@ -42,6 +42,9 @@ export default function Navbar() {
         <Box component={NavLink} to="/inventory" sx={tabSx}>
           Manage inventory
         </Box>
+                <Box component={NavLink} to="/summary" sx={tabSx}>
+          Stock summary
+        </Box>
         <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
           {user?.email}
         </Typography>
