@@ -7,11 +7,16 @@ import { logTest } from "../services/usageService";
 import LogTestCard from "../components/dashboard/LogTestCard";
 import StockLevelsCard from "../components/dashboard/StockLevelsCard";
 import AlertsCard from "../components/dashboard/AlertsCard";
+import ReorderListCard from "../components/dashboard/ReorderListCard";
+import { useRecentUsage } from "../hooks/useRecentUsage";
+import { receiveStock } from "../services/itemService";
+import { getReorderSuggestions } from "../utils/reorder";
 
 export default function DashboardPage() {
   const location = useLocation();
   const { items, loading: itemsLoading, error: itemsError } = useItems();
   const { tests, loading: testsLoading, error: testsError } = useTests();
+  const { usage, loading: usageLoading, error: usageError } = useRecentUsage();
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   async function handleConfirm(test) {
@@ -28,8 +33,23 @@ export default function DashboardPage() {
     }
   }
 
-  const loading = itemsLoading || testsLoading;
-  const error = itemsError || testsError;
+  
+  async function handleReceive(suggestion) {
+    try {
+      await receiveStock(suggestion.item.id, suggestion.order);
+      setToast({
+        open: true,
+        severity: "success",
+        message: `${suggestion.item.name} received: +${suggestion.order} pcs. Stock updated.`,
+      });
+    } catch (e) {
+      setToast({ open: true, severity: "error", message: e.message });
+    }
+  }
+
+    const loading = itemsLoading || testsLoading || usageLoading;
+  const error = itemsError || testsError || usageError;
+  const suggestions = getReorderSuggestions(items, usage);
 
   useEffect(() => {
     if (location.hash === "#alerts" && !loading && !error) {
@@ -65,6 +85,7 @@ export default function DashboardPage() {
           <StockLevelsCard items={items} />
           <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
           <AlertsCard items={items} />
+                    <ReorderListCard suggestions={suggestions} onReceive={handleReceive} />
         </Box>
       )}
 

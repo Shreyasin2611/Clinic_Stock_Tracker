@@ -73,3 +73,21 @@ export async function deleteItem(id) {
   }
   return deleteDoc(doc(db, "items", id));
 }
+
+
+export function receiveStock(id, amount) {
+  return runTransaction(db, async (transaction) => {
+    const ref = doc(db, "items", id);
+    const snap = await transaction.get(ref);
+    if (!snap.exists()) {
+      throw new Error("This item no longer exists.");
+    }
+    const { name, quantity } = snap.data();
+    const after = quantity + amount;
+    transaction.update(ref, { quantity: after });
+    transaction.set(
+      doc(collection(db, "stockMovements")),
+      movementData(id, name, amount, after, "received")
+    );
+  });
+}

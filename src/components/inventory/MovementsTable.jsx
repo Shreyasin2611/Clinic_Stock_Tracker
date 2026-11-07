@@ -15,6 +15,7 @@ function describeReason(movement) {
   if (movement.reason === "test") return `Test: ${movement.testName}`;
   if (movement.reason === "adjustment") return "Manual adjustment";
   if (movement.reason === "initial") return "Initial stock";
+  if (movement.reason === "received") return "Stock received";
   return movement.reason;
 }
 
