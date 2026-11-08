@@ -7,6 +7,7 @@ import { useMovements } from "../hooks/useMovements";
 import { useToast } from "../hooks/useToast";
 import { addItem, deleteItem, updateItem } from "../services/itemService";
 import { addTest, deleteTest, updateTest } from "../services/testService";
+import { getErrorMessage } from "../utils/errorMessages";
 import DataState from "../components/common/DataState";
 import PageHeader from "../components/common/PageHeader";
 import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
@@ -50,7 +51,7 @@ export default function InventoryPage() {
       }
       setItemForm({ open: false, item: null });
     } catch (e) {
-      showToast("Could not save: " + e.message, "error");
+      showToast("Could not save: " + getErrorMessage(e), "error");
     }
   }
   
@@ -59,7 +60,7 @@ export default function InventoryPage() {
       await deleteItem(deleteItemTarget.id);
       showToast("Stock item deleted.");
     } catch (e) {
-      showToast(e.message, "error");
+      showToast(getErrorMessage(e), "error");
     } finally {
       setDeleteItemTarget(null);
     }
@@ -77,7 +78,7 @@ export default function InventoryPage() {
       }
       setTestForm({ open: false, test: null });
     } catch (e) {
-      showToast("Could not save: " + e.message, "error");
+      showToast("Could not save: " + getErrorMessage(e), "error");
     }
   }
 
@@ -87,7 +88,7 @@ export default function InventoryPage() {
       await deleteTest(deleteTestTarget.id);
       showToast("Test deleted.");
     } catch (e) {
-      showToast("Could not delete: " + e.message, "error");
+      showToast("Could not delete: " + getErrorMessage(e), "error");
     } finally {
       setDeleteTestTarget(null);
     }

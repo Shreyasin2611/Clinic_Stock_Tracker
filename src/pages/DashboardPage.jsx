@@ -6,6 +6,7 @@ import { useToast } from "../hooks/useToast";
 import { logTest } from "../services/usageService";
 import { receiveStock } from "../services/itemService";
 import { getReorderSuggestions } from "../utils/reorder";
+import { getErrorMessage } from "../utils/errorMessages";
 import DataState from "../components/common/DataState";
 import PageHeader from "../components/common/PageHeader";
 import StockLevelsCard from "../components/dashboard/StockLevelsCard";
@@ -26,7 +27,7 @@ export default function DashboardPage() {
       const text = used.map((u) => `${u.quantity} ${u.name.toLowerCase()}`).join(", ");
       showToast(`Test logged: ${text} used. Stock updated.`);
     } catch (e) {
-      showToast(e.message, "error");
+      showToast(getErrorMessage(e), "error");
     }
   }
 
@@ -38,7 +39,7 @@ export default function DashboardPage() {
         `${suggestion.item.name} received: +${suggestion.order} pcs. Stock updated.`
       );
     } catch (e) {
-      showToast(e.message, "error");
+      showToast(getErrorMessage(e), "error");
     }
   }
 
