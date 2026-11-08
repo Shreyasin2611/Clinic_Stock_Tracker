@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Alert, Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
+import { getLoginErrorMessage } from "../utils/authErrors";
 
 export default function LoginPage() {
   const { user, login } = useAuth();
@@ -20,8 +21,8 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
-    } catch {
-      setError("Wrong email or password. Please try again.");
+        } catch (e) {
+      setError(getLoginErrorMessage(e));
     } finally {
       setSubmitting(false);
     }
