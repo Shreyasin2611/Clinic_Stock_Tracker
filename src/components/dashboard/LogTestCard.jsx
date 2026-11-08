@@ -1,3 +1,4 @@
+import { Link as RouterLink } from "react-router-dom";
 import { useState } from "react";
 import { Box, Button, Chip, MenuItem, Paper, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -22,9 +23,14 @@ export default function LogTestCard({ tests, items, onConfirm }) {
       </Typography>
 
       {tests.length === 0 ? (
-        <Typography color="text.secondary">
-          No tests yet. Add a test in Manage inventory first.
-        </Typography>
+                <Box sx={{ display: "grid", gap: 2, justifyItems: "start" }}>
+          <Typography color="text.secondary">
+            No tests yet. Add a test first, then you can log it here.
+          </Typography>
+          <Button variant="outlined" component={RouterLink} to="/inventory/tests">
+            Go to tests
+          </Button>
+        </Box>
       ) : (
         <Box sx={{ display: "grid", gap: 2 }}>
           <TextField
