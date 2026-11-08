@@ -22,8 +22,10 @@ export default function ItemFormDialog({ item, items, onSave, onClose }) {
   function validate() {
     const found = {};
     const trimmed = name.trim();
-    if (!trimmed) {
+        if (!trimmed) {
       found.name = "Item name is required.";
+    } else if (trimmed.length > 50) {
+      found.name = "Name must be 50 characters or fewer.";
     } else if (
       items.some(
         (i) => i.id !== item?.id && i.name.toLowerCase() === trimmed.toLowerCase()
@@ -36,7 +38,8 @@ export default function ItemFormDialog({ item, items, onSave, onClose }) {
     return found;
   }
 
-  async function handleSave() {
+  async function handleSave(e) {
+    e.preventDefault();
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
@@ -50,12 +53,19 @@ export default function ItemFormDialog({ item, items, onSave, onClose }) {
   }
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
+        <Dialog
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+            slotProps={{ paper: { component: "form", onSubmit: handleSave, noValidate: true } }}
+    >
       <DialogTitle>{item ? "Edit stock item" : "Add stock item"}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "grid", gap: 2, pt: 1 }}>
           <TextField
             label="Item name"
+            autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
             error={Boolean(errors.name)}
@@ -86,7 +96,7 @@ export default function ItemFormDialog({ item, items, onSave, onClose }) {
         <Button variant="outlined" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleSave} disabled={saving}>
+          <Button type="submit" variant="contained" disabled={saving}>
           {item ? "Save changes" : "Add item"}
         </Button>
       </DialogActions>
