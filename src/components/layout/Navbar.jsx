@@ -26,16 +26,30 @@ export default function Navbar() {
         sx={{
           maxWidth: 1280,
           mx: "auto",
-          px: 3,
-          height: 64,
+          px: { xs: 2, sm: 3 },
+          minHeight: 64,
           display: "flex",
           alignItems: "center",
-          gap: 1,
+          flexWrap: "wrap",
+          columnGap: 1,
         }}
       >
-        <Typography variant="h2" sx={{ mr: "auto" }}>
+        <Typography variant="h2" sx={{ mr: "auto", py: 1, order: 1 }}>
           Clinic Stock Tracker
         </Typography>
+
+        <Box
+          component="nav"
+          aria-label="Main"
+          sx={{
+            display: "flex",
+            height: { xs: 48, md: 64 },
+            width: { xs: "100%", md: "auto" },
+            overflowX: "auto",
+            order: { xs: 3, md: 2 },
+          }}
+        >
+
         <Box component={NavLink} to="/" end sx={tabSx}>
           Dashboard
         </Box>
@@ -45,10 +59,17 @@ export default function Navbar() {
                 <Box component={NavLink} to="/summary" sx={tabSx}>
           Stock summary
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
+      </Box>
+
+        <Typography 
+          variant="caption" 
+          color="text.secondary"
+          sx={{ ml: 2, order: 3, display: { xs: "none", md: "block" } }}
+        >
           {user?.email}
         </Typography>
-        <Button variant="outlined" onClick={logout} sx={{ ml: 1 }}>
+
+        <Button variant="outlined" onClick={logout} sx={{ order: { xs: 2, md: 4 } }}>
           Log out
         </Button>
       </Box>
