@@ -3,8 +3,10 @@ import { Navigate } from "react-router-dom";
 import { Alert, Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
 import { getLoginErrorMessage } from "../utils/authErrors";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function LoginPage() {
+    usePageTitle("Sign in");
   const { user, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
