@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { Box, Button, Paper, Typography } from "@mui/material";
 
+const INITIAL_SUGGESTION_COUNT = 3;
+
 export default function ReorderListCard({ suggestions, onReceive }) {
   const [busyId, setBusyId] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const visibleSuggestions = showAll
+    ? suggestions
+    : suggestions.slice(0, INITIAL_SUGGESTION_COUNT);
 
   async function handleClick(suggestion) {
     setBusyId(suggestion.item.id);
@@ -20,7 +26,7 @@ export default function ReorderListCard({ suggestions, onReceive }) {
         <Typography color="text.secondary">Nothing to reorder right now.</Typography>
       ) : (
         <Box sx={{ display: "grid", gap: 1.5 }}>
-          {suggestions.map((s) => (
+          {visibleSuggestions.map((s) => (
             <Box
               key={s.item.id}
               sx={{
@@ -55,6 +61,15 @@ export default function ReorderListCard({ suggestions, onReceive }) {
             </Box>
           ))}
         </Box>
+      )}
+      {suggestions.length > INITIAL_SUGGESTION_COUNT && (
+        <Button
+          onClick={() => setShowAll((current) => !current)}
+          aria-expanded={showAll}
+          sx={{ mt: 2 }}
+        >
+          {showAll ? "Show less" : `View all (${suggestions.length})`}
+        </Button>
       )}
     </Paper>
   );
