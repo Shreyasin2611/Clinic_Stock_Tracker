@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validItem(data) {
+      return data.name is string
+        && data.name.size() > 0 && data.name.size() <= 50
+        && data.quantity is int && data.quantity >= 0
+        && data.threshold is int && data.threshold >= 0;
+    }
+
+    function validTest(data) {
+      return data.name is string
+        && data.name.size() > 0 && data.name.size() <= 50
+        && data.requiredItems is list
+        && data.requiredItems.size() > 0
+        && data.requiredItems.size() <= 20;
+    }
+
+    function validMovement(data) {
+      return data.itemId is string
+        && data.itemName is string
+        && data.change is int
+        && data.quantityAfter is int && data.quantityAfter >= 0
+        && data.reason in ['test', 'adjustment', 'initial', 'received', 'expired', 'damaged']
+        && data.createdAt == request.time;
+    }
+
+    match /items/{itemId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && validItem(request.resource.data);
+      allow delete: if signedIn();
+    }
+
+    match /tests/{testId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && validTest(request.resource.data);
+      allow delete: if signedIn();
+    }
+
+    match /stockMovements/{movementId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && validMovement(request.resource.data);
+      allow update, delete: if false;
+    }
+  }
+}
