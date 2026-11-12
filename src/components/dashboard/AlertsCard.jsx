@@ -1,8 +1,12 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { useState } from "react";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { getAlerts } from "../../utils/stockAlerts";
 
+const INITIAL_ALERT_COUNT = 3;
+
 export default function AlertsCard({ items }) {
+  const [showAll, setShowAll] = useState(false);
   const { palette } = useTheme();
   const s = palette.status;
   const styles = {
@@ -10,6 +14,7 @@ export default function AlertsCard({ items }) {
     near: { dot: s.near, bg: s.nearBg, title: "Near threshold" },
   };
   const alerts = getAlerts(items);
+  const visibleAlerts = showAll ? alerts : alerts.slice(0, INITIAL_ALERT_COUNT);
 
   return (
     <Paper id="dashboard-alerts" sx={{ p: 3, scrollMarginTop: 16 }}>
@@ -23,7 +28,7 @@ export default function AlertsCard({ items }) {
         </Typography>
       ) : (
         <Box sx={{ display: "grid", gap: 1.5 }}>
-          {alerts.map(({ item, status }) => (
+          {visibleAlerts.map(({ item, status }) => (
             <Box
               key={item.id}
               sx={{
@@ -56,6 +61,15 @@ export default function AlertsCard({ items }) {
             </Box>
           ))}
         </Box>
+      )}
+      {alerts.length > INITIAL_ALERT_COUNT && (
+        <Button
+          onClick={() => setShowAll((current) => !current)}
+          aria-expanded={showAll}
+          sx={{ mt: 2 }}
+        >
+          {showAll ? "Show less" : `View all (${alerts.length})`}
+        </Button>
       )}
     </Paper>
   );

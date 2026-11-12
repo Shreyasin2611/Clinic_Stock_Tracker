@@ -12,8 +12,12 @@ export default function LogTestCard({ tests, items, onConfirm }) {
 
   async function handleConfirm() {
     setSubmitting(true);
-    await onConfirm(selected);
-    setSubmitting(false);
+    try {
+      const succeeded = await onConfirm(selected);
+      if (succeeded) setTestId("");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
