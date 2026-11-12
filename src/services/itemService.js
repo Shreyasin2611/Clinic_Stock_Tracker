@@ -91,3 +91,32 @@ export function receiveStock(id, amount) {
     );
   });
 }
+
+export function recordWaste(id, amount, reason) {
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new Error("Waste quantity must be a whole number greater than 0.");
+  }
+  if (!["expired", "damaged"].includes(reason)) {
+    throw new Error("Choose whether the item was expired or damaged.");
+  }
+
+  return runTransaction(db, async (transaction) => {
+    const ref = doc(db, "items", id);
+    const snap = await transaction.get(ref);
+    if (!snap.exists()) {
+      throw new Error("This item no longer exists.");
+    }
+
+    const { name, quantity } = snap.data();
+    if (amount > quantity) {
+      throw new Error(`Only ${quantity} pcs are currently in stock.`);
+    }
+
+    const after = quantity - amount;
+    transaction.update(ref, { quantity: after });
+    transaction.set(
+      doc(collection(db, "stockMovements")),
+      movementData(id, name, -amount, after, reason)
+    );
+  });
+}

@@ -28,7 +28,7 @@ const STATUS_ORDER = {
   ok: { ok: 0, near: 1, low: 2 },
 };
 
-export default function StockItemsTable({ items, onAdd, onEdit, onDelete }) {
+export default function StockItemsTable({ items, onAdd, onEdit, onDelete, onWaste }) {
   const [sortOrder, setSortOrder] = useState("low");
   const sortedItems = [...items].sort((a, b) => {
     const statusDifference =
@@ -92,6 +92,13 @@ export default function StockItemsTable({ items, onAdd, onEdit, onDelete }) {
                   <StatusBadge status={getStatus(item.quantity, item.threshold)} />
                 </TableCell>
                 <TableCell align="right">
+                    <Button
+                      size="small"
+                      onClick={() => onWaste(item)}
+                      disabled={item.quantity === 0}
+                    >
+                      Record waste
+                    </Button>
                     <Tooltip title="Edit">
                       <IconButton aria-label={`Edit ${item.name}`} onClick={() => onEdit(item)}>
                         <EditOutlinedIcon />
