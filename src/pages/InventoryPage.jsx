@@ -5,7 +5,7 @@ import { useItems } from "../hooks/useItems";
 import { useTests } from "../hooks/useTests";
 import { useMovements } from "../hooks/useMovements";
 import { useToast } from "../hooks/useToast";
-import { addItem, deleteItem, updateItem } from "../services/itemService";
+import { addItem, deleteItem, recordWaste, updateItem } from "../services/itemService";
 import { addTest, deleteTest, updateTest } from "../services/testService";
 import { getErrorMessage } from "../utils/errorMessages";
 import DataState from "../components/common/DataState";
@@ -13,6 +13,7 @@ import PageHeader from "../components/common/PageHeader";
 import ConfirmDeleteDialog from "../components/common/ConfirmDeleteDialog";
 import StockItemsTable from "../components/inventory/StockItemsTable";
 import ItemFormDialog from "../components/inventory/ItemFormDialog";
+import WasteFormDialog from "../components/inventory/WasteFormDialog";
 import TestsTable from "../components/inventory/TestsTable";
 import TestFormDialog from "../components/inventory/TestFormDialog";
 import MovementsTable from "../components/inventory/MovementsTable";
@@ -32,6 +33,7 @@ export default function InventoryPage() {
   } = useMovements();
 
   const [itemForm, setItemForm] = useState({ open: false, item: null });
+  const [wasteTarget, setWasteTarget] = useState(null);
   const [testForm, setTestForm] = useState({ open: false, test: null });
   const [deleteItemTarget, setDeleteItemTarget] = useState(null);
   const [deleteTestTarget, setDeleteTestTarget] = useState(null);
@@ -63,6 +65,18 @@ export default function InventoryPage() {
       showToast(getErrorMessage(e), "error");
     } finally {
       setDeleteItemTarget(null);
+    }
+  }
+
+  async function handleRecordWaste({ item, amount, reason }) {
+    try {
+      await recordWaste(item.id, amount, reason);
+      showToast(`${amount} ${item.name.toLowerCase()} recorded as ${reason} waste.`);
+      setWasteTarget(null);
+      return true;
+    } catch (e) {
+      showToast(getErrorMessage(e), "error");
+      return false;
     }
   }
 
@@ -131,6 +145,7 @@ export default function InventoryPage() {
               onAdd={() => setItemForm({ open: true, item: null })}
               onEdit={(item) => setItemForm({ open: true, item })}
               onDelete={(item) => setDeleteItemTarget(item)}
+              onWaste={(item) => setWasteTarget(item)}
             />
               </DataState>
       )}
@@ -159,6 +174,14 @@ export default function InventoryPage() {
           items={items}
           onSave={handleSaveItem}
           onClose={() => setItemForm({ open: false, item: null })}
+        />
+      )}
+
+      {wasteTarget && (
+        <WasteFormDialog
+          item={wasteTarget}
+          onSave={handleRecordWaste}
+          onClose={() => setWasteTarget(null)}
         />
       )}
       
