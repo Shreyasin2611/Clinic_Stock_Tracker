@@ -15,9 +15,8 @@ export function getDailyUsage(movements, itemId, days = REORDER_DAYS) {
 export function getReorderSuggestions(items, movements) {
   return getAlerts(items).map(({ item, status }) => {
     const used = getUsedInWindow(movements, item.id);
-    const safety = Math.ceil(item.threshold * 1.5);
-    const target = used + safety;
+    const target = used + item.threshold;
     const order = Math.max(1, target - item.quantity);
-    return { item, status, used, safety, target, order };
+    return { item, status, used, target, order };
   });
 }

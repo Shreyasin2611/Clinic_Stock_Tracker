@@ -19,7 +19,7 @@ export default function ReorderListCard({ suggestions, onReceive }) {
   return (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h2" sx={{ mb: 2 }}>
-        Reorder list
+        Items to restock
       </Typography>
 
       {suggestions.length === 0 ? (
@@ -42,12 +42,11 @@ export default function ReorderListCard({ suggestions, onReceive }) {
               }}
             >
               <Box>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {s.item.name}: order {s.order} pcs
+                <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  {s.item.name} (Order {s.order} pcs)
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Used {s.used} in the last 15 days. Target {s.target} (usage + safety
-                  stock {s.safety}). In stock: {s.item.quantity}.
+                <Typography variant="body2">
+                  Stock after restock: {s.item.quantity + s.order} pcs
                 </Typography>
               </Box>
               <Button

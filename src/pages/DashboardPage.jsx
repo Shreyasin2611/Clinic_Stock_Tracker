@@ -105,8 +105,10 @@ export default function DashboardPage() {
           }}
         >
           <StockLevelsCard items={items} />
-          <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
-          <AlertsCard items={items} />
+          <Box sx={{ alignSelf: { xs: "start", md: "center" } }}>
+            <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
+          </Box>
+          <AlertsCard items={items} usage={usage} />
           <ReorderListCard suggestions={suggestions} onReceive={handleReceive} />
         </Box>
       </DataState>
