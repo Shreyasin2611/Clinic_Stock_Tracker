@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { getAlerts } from "../../utils/stockAlerts";
+import { getUsedInWindow, REORDER_DAYS } from "../../utils/reorder";
 
 const INITIAL_ALERT_COUNT = 3;
 
-export default function AlertsCard({ items }) {
+export default function AlertsCard({ items, usage }) {
   const [showAll, setShowAll] = useState(false);
   const { palette } = useTheme();
   const s = palette.status;
@@ -19,7 +20,7 @@ export default function AlertsCard({ items }) {
   return (
     <Paper id="dashboard-alerts" sx={{ p: 3, scrollMarginTop: 16 }}>
       <Typography variant="h2" sx={{ mb: 2 }}>
-        Alerts
+        Stock alerts
       </Typography>
 
       {alerts.length === 0 ? (
@@ -54,8 +55,16 @@ export default function AlertsCard({ items }) {
                 <Typography variant="body1" sx={{ fontWeight: 500 }}>
                   {styles[status].title}: {item.name}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {item.quantity} pcs left (threshold {item.threshold})
+                <Typography component="div" variant="caption" color="text.secondary">
+                  {item.quantity} pcs left: threshold {item.threshold} pcs
+                </Typography>
+                <Typography
+                  component="div"
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontStyle: "italic" }}
+                >
+                  (Used in last {REORDER_DAYS} days: {getUsedInWindow(usage, item.id)} pcs)
                 </Typography>
               </Box>
             </Box>
