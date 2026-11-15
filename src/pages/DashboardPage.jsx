@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Box } from "@mui/material";
 import { useItems } from "../hooks/useItems";
@@ -15,8 +15,10 @@ import StockLevelsCard from "../components/dashboard/StockLevelsCard";
 import LogTestCard from "../components/dashboard/LogTestCard";
 import AlertsCard from "../components/dashboard/AlertsCard";
 import ReorderListCard from "../components/dashboard/ReorderListCard";
+import DeliveryFormDialog from "../components/dashboard/DeliveryFormDialog";
 
 export default function DashboardPage() {
+  const [deliveryTarget, setDeliveryTarget] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -38,14 +40,17 @@ export default function DashboardPage() {
   }
 
   
-  async function handleReceive(suggestion) {
+  async function handleReceive({ suggestion, amount }) {
     try {
-      await receiveStock(suggestion.item.id, suggestion.order);
+      await receiveStock(suggestion.item.id, amount);
       showToast(
-        `${suggestion.item.name} received: +${suggestion.order} pcs. Stock updated.`
+        `${suggestion.item.name} received: +${amount} pcs. Stock updated.`
       );
+      setDeliveryTarget(null);
+      return true;
     } catch (e) {
       showToast(getErrorMessage(e), "error");
+      return false;
     }
   }
 
@@ -109,9 +114,19 @@ export default function DashboardPage() {
             <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
           </Box>
           <AlertsCard items={items} usage={usage} />
-          <ReorderListCard suggestions={suggestions} onReceive={handleReceive} />
+          <ReorderListCard
+            suggestions={suggestions}
+            onReceive={(suggestion) => setDeliveryTarget(suggestion)}
+          />
         </Box>
       </DataState>
+      {deliveryTarget && (
+        <DeliveryFormDialog
+          suggestion={deliveryTarget}
+          onSave={handleReceive}
+          onClose={() => setDeliveryTarget(null)}
+        />
+      )}
     </> 
   );
 }

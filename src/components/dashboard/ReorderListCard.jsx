@@ -4,17 +4,10 @@ import { Box, Button, Paper, Typography } from "@mui/material";
 const INITIAL_SUGGESTION_COUNT = 3;
 
 export default function ReorderListCard({ suggestions, onReceive }) {
-  const [busyId, setBusyId] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const visibleSuggestions = showAll
     ? suggestions
     : suggestions.slice(0, INITIAL_SUGGESTION_COUNT);
-
-  async function handleClick(suggestion) {
-    setBusyId(suggestion.item.id);
-    await onReceive(suggestion);
-    setBusyId(null);
-  }
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -51,11 +44,10 @@ export default function ReorderListCard({ suggestions, onReceive }) {
               </Box>
               <Button
                 variant="outlined"
-                onClick={() => handleClick(s)}
-                disabled={busyId === s.item.id}
+                onClick={() => onReceive(s)}
                 sx={{ flexShrink: 0 }}
               >
-                Mark received
+                Record delivery
               </Button>
             </Box>
           ))}
