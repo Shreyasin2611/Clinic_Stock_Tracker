@@ -27,7 +27,7 @@ export default function LogTestCard({ tests, items, onConfirm }) {
       </Typography>
 
       {tests.length === 0 ? (
-                <Box sx={{ display: "grid", gap: 2, justifyItems: "start" }}>
+        <Box sx={{ display: "grid", gap: 2, justifyItems: "start" }}>
           <Typography color="text.secondary">
             No tests yet. Add a test first, then you can log it here.
           </Typography>
