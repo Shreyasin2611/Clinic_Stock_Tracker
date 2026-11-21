@@ -96,8 +96,8 @@ export function recordWaste(id, amount, reason) {
   if (!Number.isInteger(amount) || amount <= 0) {
     throw new Error("Waste quantity must be a whole number greater than 0.");
   }
-  if (!["expired", "damaged"].includes(reason)) {
-    throw new Error("Choose whether the item was expired or damaged.");
+  if (!["expired", "damaged", "missing"].includes(reason)) {
+    throw new Error("Choose whether the item was expired, damaged, or missing.");
   }
 
   return runTransaction(db, async (transaction) => {

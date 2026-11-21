@@ -23,6 +23,7 @@ function describeReason(movement) {
   if (movement.reason === "received") return "Stock received";
   if (movement.reason === "expired") return "Waste: expired";
   if (movement.reason === "damaged") return "Waste: damaged";
+  if (movement.reason === "missing") return "Waste: missing";
   return movement.reason;
 }
 
@@ -69,6 +70,7 @@ export default function MovementsTable({ movements }) {
             <MenuItem value="test">Test</MenuItem>
             <MenuItem value="expired">Expired</MenuItem>
             <MenuItem value="damaged">Damaged</MenuItem>
+            <MenuItem value="missing">Missing</MenuItem>
             <MenuItem value="adjustment">Manual adjustment</MenuItem>
             <MenuItem value="initial">Initial stock</MenuItem>
             <MenuItem value="received">Stock received</MenuItem>
