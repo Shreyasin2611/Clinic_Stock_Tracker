@@ -109,10 +109,17 @@ export default function DashboardPage() {
             alignItems: "start",
           }}
         >
-          <StockLevelsCard items={items} />
-          <Box sx={{ alignSelf: { xs: "start", md: "center" } }}>
+          <Box
+            sx={{
+              gridColumn: { xs: "auto", md: "1 / -1" },
+              width: { xs: "100%", md: "60%" },
+              justifySelf: "center",
+              alignSelf: { xs: "start", md: "center" },
+            }}
+          >
             <LogTestCard tests={tests} items={items} onConfirm={handleConfirm} />
           </Box>
+          <StockLevelsCard items={items} />
           <AlertsCard items={items} usage={usage} />
           <ReorderListCard
             suggestions={suggestions}
