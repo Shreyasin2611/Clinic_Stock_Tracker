@@ -71,6 +71,7 @@ export default function WasteFormDialog({ item, onSave, onClose }) {
         >
           <MenuItem value="expired">Expired</MenuItem>
           <MenuItem value="damaged">Damaged</MenuItem>
+          <MenuItem value="missing">Missing</MenuItem>
         </TextField>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

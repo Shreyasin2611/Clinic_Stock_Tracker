@@ -27,7 +27,7 @@ service cloud.firestore {
         && data.itemName is string
         && data.change is int
         && data.quantityAfter is int && data.quantityAfter >= 0
-        && data.reason in ['test', 'adjustment', 'initial', 'received', 'expired', 'damaged']
+        && data.reason in ['test', 'adjustment', 'initial', 'received', 'expired', 'damaged', 'missing']
         && data.createdAt == request.time;
     }
 
