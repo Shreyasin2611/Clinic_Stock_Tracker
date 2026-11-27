@@ -1,87 +1,127 @@
 # Clinic Stock Tracker
 
-A web app that automatically tracks consumable stock at case company for Healthcare Centre, which conducts a wide range of health checkup routines. When a test is logged, the stock used by that test is deducted automatically, and staff are alerted when an item runs low.
+A web-based prototype for tracking consumable stock at a diagnostic healthcare centre. Staff can record tests, automatically deduct the configured consumables, view current stock levels, and identify items that need attention.
 
+The prototype focuses on test-based stock tracking, stock visibility, low-stock alerts, and restocking support. Automated purchasing, supplier/logistics integration, and payment processing are outside the current scope.
 
+## Live application
 
-## Tech stack
+https://clinic-stock-tracker-71c33.web.app
 
-- React (JavaScript) with Vite
-- React Router (routing)
-- Material UI (components and theme)
-- Firebase / Firestore (serverless backend)
+## Features
+
+- **Dashboard:** View stock levels and status, log a test, review low-stock and near-threshold alerts, and see restocking suggestions.
+- **Test-based stock deduction:** Each test is associated with required stock items and quantities. Confirming a test checks availability and updates stock.
+- **Inventory management:** Add, edit, and delete stock items and test definitions. An item cannot be deleted while it is used by a test.
+- **Stock receiving and waste:** Record deliveries, including the quantity actually received, and record waste with a reason.
+- **Movement history:** Review recent stock changes, including test usage, deliveries, adjustments, and waste.
+- **Stock summary:** Review item status and estimated days of stock remaining based on recorded usage.
+- **Authentication:** Sign in with an account configured in Firebase Authentication. User registration and role management are not implemented.
+
+## Technology
+
+- React and Vite
+- Material UI
+- React Router
+- Firebase Authentication
+- Cloud Firestore
 - ESLint
 
-## MVP scope (MoSCoW)
+The frontend communicates with Firebase through the Firebase JavaScript SDK and service modules. There is no separate custom API server. Firestore subscriptions keep displayed inventory data updated when records change.
 
-| Priority | Feature |
+Firebase Authentication manages sign-in, while Cloud Firestore stores inventory, test definitions, and stock movements. Firestore security rules require authentication and validate selected data fields. See the [Cloud Firestore documentation](https://firebase.google.com/docs/firestore).
+
+## Data model
+
+| Firestore collection | Purpose |
 |---|---|
-| Must have | Automatic stock deduction for each test |
-| Must have | Current status of an item (OK, Near threshold, Low) |
-| Must have | Alert for shortage |
-| Should have | Automated reorder list based on usage |
-| Should have | User friendly interface |
-| Could have | Usage trend report of tests (not in scope for now) |
-| Won't have | Full integration with the company's Lab ERP, automated reorder to supplier and payments |
+| `items` | Stock-item name, current quantity, and alert threshold |
+| `tests` | Test name and the required stock items and quantities |
+| `stockMovements` | Stock changes, including item, quantity change, reason, and timestamp |
 
-The prototype is intended for one staff user. Login is required to protect the web application and its clinic inventory data; multi-user accounts and role management are outside the current scope.
-
-## Folder structure
-
-```
-Clinic_Stock_Tracker/
-├── public/
-├── src/
-│   ├── components/
-│   │   ├── common/        ProtectedRoute, StatusBadge, ConfirmDeleteDialog
-│   │   ├── dashboard/     Dashboard components (planned)
-│   │   ├── inventory/    Item and test tables and form dialogs
-│   │   └── layout/       Navbar, PageLayout
-│   ├── context/           Authentication context and provider
-│   ├── hooks/             Authentication, item, and test hooks
-│   ├── pages/             DashboardPage, InventoryPage, LoginPage, NotFoundPage
-│   ├── routes/            AppRoutes
-│   ├── services/          Firebase setup, item/test data access, seed data
-│   ├── theme/             MUI theme
-│   ├── utils/             Stock status helper
-│   ├── App.jsx
-│   ├── index.css
-│   └── main.jsx
-├── eslint.config.js
-├── package.json
-├── package-lock.json
-└── vite.config.js
-```
-
-## Routing
-
-| URL | Page | Description |
-|---|---|---|
-| `/login` | LoginPage | Sign-in page for the authorized staff user |
-| `/` | DashboardPage | Stock levels, log a test, alerts, reorder list |
-| `/inventory` | redirect | Redirects to `/inventory/tests` |
-| `/inventory/tests` | InventoryPage | Manage tests and the items each test uses |
-| `/inventory/stock-items` | InventoryPage | Manage stock items, quantities and thresholds |
-| `/inventory/history` | Stock history (recent stock changes)
-| `/summary` | SummaryPage | Stock summary: counts by status and days of stock left |
-| `*` | NotFoundPage | 404 page |
-
-Add, edit and delete forms open as dialogs on top of the page, so they have no separate URL.
-
-## Branch plan
-
-Each feature is developed in its own branch and merged into `main` at the end.
-
-| Branch | Content |
-|---|---|
-| `main` |  At the end, tested code merged from  local branch to main branch |
-| `dev` | For daily development work |
+Test and movement documents refer to stock items by their Firestore document IDs. Stock-changing operations such as logging a test use Firestore transactions to keep item quantities and movement records consistent.
 
 ## Getting started
+
+### Prerequisites
+
+- Node.js and npm
+- A Firebase project with Cloud Firestore and Email/Password Authentication enabled
+
+### Configure Firebase
+
+Create a `.env.local` file in the project root and provide the Firebase web-app configuration:
+
+```dotenv
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+Create the required sign-in account in Firebase Authentication. Apply the rules in `firestore.rules` to the project's Firestore database. Do not put private service-account credentials in frontend environment variables; `VITE_` variables are included in the browser build.
+
+### Install and run
 
 ```bash
 npm install
 npm run dev
 ```
 
-The app runs at `http://localhost:5173`.
+Vite prints the local development URL in the terminal (typically `http://localhost:5173`).
+
+## Application routes
+
+| Route | Page |
+|---|---|
+| `/login` | Sign-in page |
+| `/` | Stock dashboard |
+| `/summary` | Stock summary |
+| `/inventory` | Redirects to `/inventory/tests` |
+| `/inventory/tests` | Manage tests and required items |
+| `/inventory/stock-items` | Manage stock items and thresholds |
+| `/inventory/history` | View recent stock movements |
+
+Application pages other than the sign-in page are protected and require an authenticated user.
+
+## Project structure
+
+```text
+src/
+├── components/
+│   ├── common/       Shared dialogs, state, and status components
+│   ├── dashboard/    Dashboard cards and delivery dialog
+│   ├── inventory/    Inventory tables and forms
+│   ├── layout/       Navigation and page layout
+│   └── summary/      Summary components
+├── context/          Authentication and notification contexts
+├── hooks/            Authentication and Firestore data hooks
+├── pages/            Dashboard, inventory, login, and summary pages
+├── routes/           Application routes
+├── services/         Firebase setup and database operations
+├── theme/            Material UI theme
+└── utils/            Stock status, alerts, summaries, and reorder logic
+```
+
+## Checks and validation
+
+Available project scripts:
+
+```bash
+npm run lint
+npm run build
+npm run preview
+```
+
+The prototype was also manually checked through functional testing on the local development server, Firestore security-rule simulations in the Firebase Rules Playground, and a smoke test of the deployed Firebase Hosting site. Detailed test cases and recorded outcomes are maintained separately in the thesis appendix.
+
+## Firebase Hosting
+
+`firebase.json` configures Firebase Hosting to serve the production build from `dist` and rewrite application routes to `index.html` for client-side routing.
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
